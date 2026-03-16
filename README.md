@@ -6,6 +6,14 @@ This is a visualization demo that implements the paper’s strategy, including:
 - Admin view: system Goodput, loss rate, supplier utility, equilibrium price
 - Backend API: `FastAPI` simulation endpoint
 
+## Image
+
+![Demo Screenshot A](img/a.png)
+
+![Demo Screenshot B](img/b.png)
+
+![Demo Screenshot C](img/c.png)
+
 ## Structure
 
 - `backend/app/main.py`: backend and core strategy logic
