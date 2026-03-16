@@ -8,11 +8,14 @@ This is a visualization demo that implements the paper’s strategy, including:
 
 ## Image
 
-![Demo Screenshot A](img/a.png)
+<div align="center">
+  <img src="img/a.png" alt="Demo Screenshot A" width="520" />
+</div>
 
-![Demo Screenshot B](img/b.png)
-
-![Demo Screenshot C](img/c.png)
+<div align="center">
+  <img src="img/b.png" alt="Demo Screenshot B" width="520" />
+  <img src="img/c.png" alt="Demo Screenshot C" width="520" />
+</div>
 
 ## Structure
 
