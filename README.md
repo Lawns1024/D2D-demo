@@ -10,7 +10,7 @@ This is a visualization demo that implements the paper’s strategy, including:
 
 - `backend/app/main.py`: backend and core strategy logic
 - `frontend/index.html`: frontend dashboard (student/admin views)
-- `experiment.py`: NS-3 Python bindings simulation script (paper appendix)
+- `experiment.py`: NS-3 Python bindings simulation script 
 - `run_demo.py`: local entry point
 
 ## Quick Start (Windows PowerShell)
