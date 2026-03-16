@@ -9,12 +9,12 @@ This is a visualization demo that implements the paper’s strategy, including:
 ## Image
 
 <div align="center">
-  <img src="img/a.png" alt="Demo Screenshot A" width="520" />
+  <img src="img/a.png" alt="Demo Screenshot A" width="240" />
 </div>
 
 <div align="center">
-  <img src="img/b.png" alt="Demo Screenshot B" width="520" />
-  <img src="img/c.png" alt="Demo Screenshot C" width="520" />
+  <img src="img/b.png" alt="Demo Screenshot B" width="240" />
+  <img src="img/c.png" alt="Demo Screenshot C" width="240" />
 </div>
 
 ## Structure
