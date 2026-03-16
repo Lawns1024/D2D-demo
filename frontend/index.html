@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Campus D2D Stackelberg 可视化实验台</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --card: #121c31;
+      --card-2: #1a2742;
+      --text: #e5ecff;
+      --muted: #9fb0d6;
+      --primary: #4f8cff;
+      --accent: #22d3ee;
+      --good: #34d399;
+      --bad: #f87171;
+      --line: rgba(159, 176, 214, 0.2);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "PingFang SC", sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at 20% 10%, #17213a 0%, #0b1220 42%, #080d18 100%);
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1240px;
+      margin: 26px auto;
+      padding: 0 16px 24px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, rgba(79, 140, 255, 0.18), rgba(34, 211, 238, 0.12));
+      border: 1px solid rgba(79, 140, 255, 0.35);
+      border-radius: 18px;
+      padding: 18px 20px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+      margin-bottom: 14px;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .hero p {
+      margin: 8px 0 0;
+      color: var(--muted);
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(26, 39, 66, 0.86), rgba(18, 28, 49, 0.92));
+      border: 1px solid rgba(159, 176, 214, 0.18);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+      margin-bottom: 14px;
+      backdrop-filter: blur(4px);
+    }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+
+    .field label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid rgba(159, 176, 214, 0.28);
+      border-radius: 10px;
+      background: rgba(8, 13, 24, 0.7);
+      color: var(--text);
+      outline: none;
+    }
+
+    input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(79, 140, 255, 0.22); }
+
+    .btn-wrap { display: flex; align-items: end; }
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 11px 14px;
+      cursor: pointer;
+      color: #fff;
+      background: linear-gradient(135deg, var(--primary), #2563eb);
+      font-weight: 600;
+      width: 100%;
+    }
+
+    button:hover { filter: brightness(1.08); }
+
+    .tabs { display: flex; gap: 8px; margin-bottom: 10px; }
+    .tab {
+      border: 1px solid rgba(159, 176, 214, 0.28);
+      background: rgba(18, 28, 49, 0.6);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 999px;
+      width: auto;
+    }
+    .tab.active {
+      background: linear-gradient(135deg, rgba(79, 140, 255, 0.85), rgba(34, 211, 238, 0.75));
+      border-color: transparent;
+    }
+
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 12px; }
+    .kpi {
+      background: rgba(8, 13, 24, 0.56);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .kpi .label { color: var(--muted); font-size: 12px; }
+    .kpi .value { margin-top: 6px; font-size: 20px; font-weight: 700; }
+
+    .chart-card { min-height: 320px; }
+    .chart-wrap {
+      position: relative;
+      height: 280px;
+      width: 100%;
+    }
+    .slider-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+    .slider-item {
+      background: rgba(8, 13, 24, 0.5);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+    .slider-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .lock-btn {
+      border: 1px solid rgba(159, 176, 214, 0.35);
+      background: rgba(8, 13, 24, 0.7);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 12px;
+      width: auto;
+    }
+    .lock-btn.locked {
+      background: rgba(248, 113, 113, 0.2);
+      border-color: rgba(248, 113, 113, 0.6);
+      color: #fecaca;
+    }
+    .slider-item label {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 8px;
+      gap: 8px;
+      align-items: center;
+    }
+    .quick-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .quick-actions button {
+      width: auto;
+      padding: 6px 8px;
+      font-size: 12px;
+      background: rgba(79, 140, 255, 0.15);
+      border: 1px solid rgba(79, 140, 255, 0.35);
+      color: var(--text);
+    }
+    .slider-item.locked {
+      opacity: 0.6;
+    }
+    .slider-item.locked input[type="range"],
+    .slider-item.locked input.slider-value {
+      pointer-events: none;
+    }
+    .slider-value {
+      width: 70px;
+      padding: 4px 6px;
+      border-radius: 8px;
+      border: 1px solid rgba(159, 176, 214, 0.35);
+      background: rgba(8, 13, 24, 0.7);
+      color: var(--text);
+      text-align: right;
+      font-size: 12px;
+    }
+    .slider-item input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+    .chart-title { margin: 0 0 10px; font-size: 15px; color: var(--muted); }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { padding: 10px 8px; border-bottom: 1px solid var(--line); text-align: left; }
+    th { color: var(--muted); font-weight: 600; }
+
+    .ok { color: var(--good); }
+    .bad { color: var(--bad); }
+    .footnote { margin-top: 10px; color: var(--muted); font-size: 12px; }
+
+    @media (max-width: 980px) {
+      .grid-2, .grid-3, .kpi-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <h1>校园 D2D 带宽博弈可视化实验台</h1>
+      <p>面向论文答辩：学生视角看“我拿到多少”，管理员视角看“系统效率是否更优”。</p>
+    </section>
+
+    <section class="card">
+      <div class="grid-3">
+        <div class="field">
+          <label>买家偏好 θ（逗号分隔）</label>
+          <input id="theta" value="25,35,45,15,50" />
+        </div>
+        <div class="field">
+          <label>容量上限 C (Mbps)</label>
+          <input id="capacity" type="number" value="100" />
+        </div>
+        <div class="field">
+          <label>边际成本 c</label>
+          <input id="cost" type="number" step="0.1" value="2.0" />
+        </div>
+      </div>
+      <div class="grid-3" style="margin-top: 10px;">
+        <div class="btn-wrap"><button id="runBtn">运行仿真并更新图表</button></div>
+        <div class="kpi"><div class="label">均衡价格 p*</div><div class="value" id="kpiPrice">-</div></div>
+        <div class="kpi"><div class="label">供应者效用</div><div class="value" id="kpiUtility">-</div></div>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi"><div class="label">Stackelberg Goodput</div><div class="value ok" id="kpiGoodStack">-</div></div>
+        <div class="kpi"><div class="label">Greedy Goodput</div><div class="value" id="kpiGoodGreedy">-</div></div>
+        <div class="kpi"><div class="label">Stackelberg 丢包率</div><div class="value ok" id="kpiLossStack">-</div></div>
+        <div class="kpi"><div class="label">Greedy 丢包率</div><div class="value bad" id="kpiLossGreedy">-</div></div>
+      </div>
+
+      <div class="card" style="margin-top: 12px;">
+        <h3 class="chart-title">拖动调整学生偏好 θ（实时刷新）</h3>
+        <div id="thetaSliders" class="slider-grid"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="tabs">
+        <button class="tab active" data-tab="student">学生视角</button>
+        <button class="tab" data-tab="admin">管理员视角</button>
+      </div>
+
+      <div id="studentView">
+        <div class="grid-2">
+          <div class="card chart-card">
+            <h3 class="chart-title">学生可得带宽对比（柱状图）</h3>
+            <div class="chart-wrap"><canvas id="allocationBarChart"></canvas></div>
+          </div>
+          <div class="card chart-card">
+            <h3 class="chart-title">个人收益感知（雷达图）</h3>
+            <div class="chart-wrap"><canvas id="studentRadarChart"></canvas></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3 class="chart-title">分配明细</h3>
+          <table id="buyerTable"></table>
+        </div>
+      </div>
+
+      <div id="adminView" style="display:none;">
+        <div class="grid-2">
+          <div class="card chart-card">
+            <h3 class="chart-title">系统吞吐与丢包对比（组合图）</h3>
+            <div class="chart-wrap"><canvas id="systemMixChart"></canvas></div>
+          </div>
+          <div class="card chart-card">
+            <h3 class="chart-title">资源效率占比（环图）</h3>
+            <div class="chart-wrap"><canvas id="efficiencyDonutChart"></canvas></div>
+          </div>
+        </div>
+        <div class="card chart-card">
+          <h3 class="chart-title">总分配量与容量约束（折线图）</h3>
+          <div class="chart-wrap"><canvas id="capacityLineChart"></canvas></div>
+        </div>
+      </div>
+      <p class="footnote">注：Greedy 场景作为对照组，用于展示无定价约束下过载风险。</p>
+    </section>
+  </div>
+
+<script>
+const API = '/api/simulate';
+let allocationBarChart, studentRadarChart, systemMixChart, efficiencyDonutChart, capacityLineChart;
+let thetaState = [];
+let lockState = [];
+let simulateTimer = null;
+
+const chartDefaults = {
+  animation: false,
+  resizeDelay: 200,
+  plugins: {
+    legend: { labels: { color: '#dbe7ff' } }
+  },
+  scales: {
+    x: { ticks: { color: '#b6c7ea' }, grid: { color: 'rgba(159, 176, 214, 0.15)' } },
+    y: { ticks: { color: '#b6c7ea' }, grid: { color: 'rgba(159, 176, 214, 0.15)' } }
+  }
+};
+
+function parseTheta(input) {
+  return input.split(',').map(v => Number(v.trim())).filter(v => Number.isFinite(v) && v > 0);
+}
+
+function arraysEqual(a, b) {
+  if (a.length !== b.length) return false;
+  return a.every((v, i) => v === b[i]);
+}
+
+function renderThetaSliders() {
+  const container = document.getElementById('thetaSliders');
+  container.innerHTML = thetaState.map((theta, index) => `
+    <div class="slider-item ${lockState[index] ? 'locked' : ''}" data-index="${index}">
+      <div class="slider-top">
+        <span>学生${index + 1}</span>
+        <button class="lock-btn ${lockState[index] ? 'locked' : ''}" data-action="lock">${lockState[index] ? '已锁定' : '锁定'}</button>
+      </div>
+      <label>
+        <span>θ 值</span>
+        <input class="slider-value" type="number" min="1" max="120" step="0.1" value="${theta}" />
+      </label>
+      <input type="range" min="1" max="120" step="0.1" value="${theta}" />
+      <div class="quick-actions">
+        <button data-action="delta" data-delta="-5">-5</button>
+        <button data-action="delta" data-delta="-1">-1</button>
+        <button data-action="delta" data-delta="1">+1</button>
+        <button data-action="delta" data-delta="5">+5</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function syncThetaInput() {
+  document.getElementById('theta').value = thetaState.join(',');
+}
+
+function scheduleSimulation() {
+  clearTimeout(simulateTimer);
+  simulateTimer = setTimeout(() => runSimulation(true), 220);
+}
+
+function setKpis(data) {
+  document.getElementById('kpiPrice').textContent = data.p_star.toFixed(3);
+  document.getElementById('kpiUtility').textContent = data.supplier_utility.toFixed(2);
+  document.getElementById('kpiGoodStack').textContent = `${data.goodput_stackelberg.toFixed(2)} Mbps`;
+  document.getElementById('kpiGoodGreedy').textContent = `${data.goodput_greedy.toFixed(2)} Mbps`;
+  document.getElementById('kpiLossStack').textContent = `${(data.loss_rate_stackelberg * 100).toFixed(2)}%`;
+  document.getElementById('kpiLossGreedy').textContent = `${(data.loss_rate_greedy * 100).toFixed(2)}%`;
+}
+
+function renderTable(data) {
+  const header = '<tr><th>学生ID</th><th>θ偏好</th><th>Stackelberg 分配(Mbps)</th><th>Greedy 分配(Mbps)</th></tr>';
+  const rows = data.buyers.map(b => `
+    <tr>
+      <td>学生${b.buyer_id}</td>
+      <td>${b.theta}</td>
+      <td>${b.allocation_stackelberg}</td>
+      <td>${b.allocation_greedy}</td>
+    </tr>
+  `).join('');
+  document.getElementById('buyerTable').innerHTML = header + rows;
+}
+
+function destroyIfExists(chart) {
+  if (chart) chart.destroy();
+}
+
+let resizeTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    [allocationBarChart, studentRadarChart, systemMixChart, efficiencyDonutChart, capacityLineChart]
+      .filter(Boolean)
+      .forEach(c => c.resize());
+  }, 180);
+});
+
+function renderCharts(data, capacity) {
+  const labels = data.buyers.map(b => `学生${b.buyer_id}`);
+  const stack = data.buyers.map(b => b.allocation_stackelberg);
+  const greedy = data.buyers.map(b => b.allocation_greedy);
+
+  destroyIfExists(allocationBarChart);
+  allocationBarChart = new Chart(document.getElementById('allocationBarChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Stackelberg', data: stack, backgroundColor: 'rgba(79, 140, 255, 0.75)' },
+        { label: 'Greedy', data: greedy, backgroundColor: 'rgba(248, 113, 113, 0.70)' }
+      ]
+    },
+    options: { ...chartDefaults, responsive: true, maintainAspectRatio: false }
+  });
+
+  destroyIfExists(studentRadarChart);
+  studentRadarChart = new Chart(document.getElementById('studentRadarChart'), {
+    type: 'radar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Stackelberg 体验', data: stack, borderColor: '#22d3ee', backgroundColor: 'rgba(34, 211, 238, 0.22)' },
+        { label: 'Greedy 体验', data: greedy, borderColor: '#f97316', backgroundColor: 'rgba(249, 115, 22, 0.16)' }
+      ]
+    },
+    options: {
+      plugins: { legend: { labels: { color: '#dbe7ff' } } },
+      scales: {
+        r: {
+          angleLines: { color: 'rgba(159, 176, 214, 0.18)' },
+          grid: { color: 'rgba(159, 176, 214, 0.18)' },
+          pointLabels: { color: '#b6c7ea' },
+          ticks: { color: '#b6c7ea', backdropColor: 'transparent' }
+        }
+      },
+      responsive: true,
+      maintainAspectRatio: false
+    }
+  });
+
+  destroyIfExists(systemMixChart);
+  systemMixChart = new Chart(document.getElementById('systemMixChart'), {
+    data: {
+      labels: ['Stackelberg', 'Greedy'],
+      datasets: [
+        {
+          type: 'bar',
+          label: 'Goodput(Mbps)',
+          data: [data.goodput_stackelberg, data.goodput_greedy],
+          backgroundColor: ['rgba(52, 211, 153, 0.8)', 'rgba(148, 163, 184, 0.7)'],
+          yAxisID: 'y'
+        },
+        {
+          type: 'line',
+          label: 'Loss Rate(%)',
+          data: [data.loss_rate_stackelberg * 100, data.loss_rate_greedy * 100],
+          borderColor: '#f87171',
+          backgroundColor: '#f87171',
+          yAxisID: 'y1',
+          tension: 0.35
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#dbe7ff' } } },
+      scales: {
+        x: { ticks: { color: '#b6c7ea' }, grid: { color: 'rgba(159, 176, 214, 0.15)' } },
+        y: { position: 'left', ticks: { color: '#b6c7ea' }, grid: { color: 'rgba(159, 176, 214, 0.15)' } },
+        y1: { position: 'right', ticks: { color: '#fca5a5' }, grid: { drawOnChartArea: false } }
+      }
+    }
+  });
+
+  destroyIfExists(efficiencyDonutChart);
+  const greedyWaste = Math.max(0, data.total_demand_raw - data.total_allocation_greedy);
+  efficiencyDonutChart = new Chart(document.getElementById('efficiencyDonutChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Stackelberg 有效吞吐', 'Greedy 有效吞吐', 'Greedy 过载损失'],
+      datasets: [{
+        data: [data.goodput_stackelberg, data.goodput_greedy, greedyWaste],
+        backgroundColor: ['#34d399', '#60a5fa', '#f87171']
+      }]
+    },
+    options: {
+      plugins: { legend: { labels: { color: '#dbe7ff' } } },
+      responsive: true,
+      maintainAspectRatio: false
+    }
+  });
+
+  destroyIfExists(capacityLineChart);
+  capacityLineChart = new Chart(document.getElementById('capacityLineChart'), {
+    type: 'line',
+    data: {
+      labels: ['容量上限', 'Stackelberg总分配', 'Greedy总分配'],
+      datasets: [{
+        label: 'Mbps',
+        data: [capacity, data.total_allocation_stackelberg, data.total_allocation_greedy],
+        borderColor: '#22d3ee',
+        backgroundColor: 'rgba(34, 211, 238, 0.18)',
+        fill: true,
+        tension: 0.28
+      }]
+    },
+    options: { ...chartDefaults, responsive: true, maintainAspectRatio: false }
+  });
+}
+
+async function runSimulation(fromSlider = false) {
+  const inputTheta = parseTheta(document.getElementById('theta').value);
+  if (!fromSlider && inputTheta.length && !arraysEqual(inputTheta, thetaState)) {
+    thetaState = inputTheta;
+    renderThetaSliders();
+  }
+  const buyers_theta = thetaState.length ? thetaState : inputTheta;
+  const capacity_mbps = Number(document.getElementById('capacity').value);
+  const cost_c = Number(document.getElementById('cost').value);
+
+  if (!buyers_theta.length || !Number.isFinite(capacity_mbps) || !Number.isFinite(cost_c) || capacity_mbps <= 0 || cost_c <= 0) {
+    alert('参数不合法：请检查 θ、容量 C、成本 c。');
+    return;
+  }
+
+  const btn = document.getElementById('runBtn');
+  btn.disabled = true;
+  btn.textContent = '仿真中...';
+
+  try {
+    const res = await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ buyers_theta, capacity_mbps, cost_c })
+    });
+    if (!res.ok) throw new Error('后端接口请求失败');
+
+    const data = await res.json();
+    setKpis(data);
+    renderTable(data);
+    renderCharts(data, capacity_mbps);
+  } catch (err) {
+    alert(`仿真失败：${err.message}`);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '运行仿真并更新图表';
+  }
+}
+
+document.getElementById('runBtn').addEventListener('click', () => runSimulation(false));
+document.getElementById('theta').addEventListener('change', () => {
+  const inputTheta = parseTheta(document.getElementById('theta').value);
+  if (inputTheta.length) {
+    thetaState = inputTheta;
+    lockState = thetaState.map(() => false);
+    renderThetaSliders();
+  }
+});
+document.getElementById('thetaSliders').addEventListener('input', (event) => {
+  if (!(event.target instanceof HTMLInputElement)) return;
+  const item = event.target.closest('.slider-item');
+  if (!item) return;
+  const index = Number(item.dataset.index);
+  if (!Number.isFinite(index)) return;
+  if (lockState[index]) return;
+
+  if (event.target.type === 'range') {
+    const value = Number(event.target.value);
+    thetaState[index] = value;
+    const inputBox = item.querySelector('.slider-value');
+    if (inputBox) inputBox.value = value.toFixed(1);
+    syncThetaInput();
+    scheduleSimulation();
+  }
+});
+
+document.getElementById('thetaSliders').addEventListener('change', (event) => {
+  if (!(event.target instanceof HTMLInputElement)) return;
+  const item = event.target.closest('.slider-item');
+  if (!item) return;
+  const index = Number(item.dataset.index);
+  if (!Number.isFinite(index)) return;
+  if (lockState[index]) return;
+
+  if (event.target.classList.contains('slider-value')) {
+    const value = Math.min(120, Math.max(1, Number(event.target.value || 1)));
+    thetaState[index] = Number(value.toFixed(1));
+    const slider = item.querySelector('input[type="range"]');
+    if (slider) slider.value = String(thetaState[index]);
+    event.target.value = String(thetaState[index]);
+    syncThetaInput();
+    scheduleSimulation();
+  }
+});
+
+document.getElementById('thetaSliders').addEventListener('click', (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) return;
+  const item = target.closest('.slider-item');
+  if (!item) return;
+  const index = Number(item.dataset.index);
+  if (!Number.isFinite(index)) return;
+
+  if (target.dataset.action === 'lock') {
+    lockState[index] = !lockState[index];
+    renderThetaSliders();
+    return;
+  }
+
+  if (target.dataset.action === 'delta') {
+    if (lockState[index]) return;
+    const delta = Number(target.dataset.delta);
+    const next = Math.min(120, Math.max(1, (thetaState[index] || 1) + delta));
+    thetaState[index] = Number(next.toFixed(1));
+    renderThetaSliders();
+    syncThetaInput();
+    scheduleSimulation();
+  }
+});
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const isStudent = tab.dataset.tab === 'student';
+    document.getElementById('studentView').style.display = isStudent ? 'block' : 'none';
+    document.getElementById('adminView').style.display = isStudent ? 'none' : 'block';
+  });
+});
+
+thetaState = parseTheta(document.getElementById('theta').value);
+lockState = thetaState.map(() => false);
+renderThetaSliders();
+runSimulation();
+</script>
+</body>
+</html>

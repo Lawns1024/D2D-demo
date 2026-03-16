@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+.vscode/
+.DS_Store
+stackelberg-d2d-results.xml
