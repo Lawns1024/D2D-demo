@@ -24,6 +24,28 @@ This is a visualization demo that implements the paper’s strategy, including:
 - `experiment.py`: NS-3 Python bindings simulation script 
 - `run_demo.py`: local entry point
 
+## Experiment (NS-3)
+
+The experiment code lives under `experiment/` and is designed to run on a Linux
+or macOS environment with NS-3 installed.
+
+D2D-demo/experiment/d2d-sharing.cc implements the NS-3 simulation comparing the Stackelberg pricing strategy against a greedy baseline. 
+It uses FlowMonitor to collect per-flow statistics, which are then parsed by `experiment/plot_results.py` to generate the figures shown in the demo.
+
+**Key files**
+- `experiment/d2d-sharing.cc`: NS-3 simulation (Stackelberg vs. greedy)
+- `experiment/plot_results.py`: FlowMonitor parsing and figure generation
+
+**Dependencies**
+- NS-3 (tested with 3.35+)
+- C++ toolchain with C++17 support (GCC or Clang)
+- Python 3.8+ with `matplotlib`
+
+**Environment notes**
+- A POSIX shell (bash/zsh) is recommended
+- Running inside WSL or a Linux VM is supported
+- FlowMonitor XML outputs are parsed locally to produce figures
+
 ## Quick Start (Windows PowerShell)
 
 ```powershell
