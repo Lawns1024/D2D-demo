@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Campus D2D Stackelberg 可视化实验台</title>
+  <title>Campus D2D Stackelberg Visual Lab</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
@@ -221,63 +221,63 @@
 <body>
   <div class="container">
     <section class="hero">
-      <h1>校园 D2D 带宽博弈可视化实验台</h1>
-      <p>面向论文答辩：学生视角看“我拿到多少”，管理员视角看“系统效率是否更优”。</p>
+  <h1>Campus D2D Stackelberg Visual Lab</h1>
+  <p>Student view: “what I get”; Admin view: “is the system more efficient?”</p>
     </section>
 
     <section class="card">
       <div class="grid-3">
         <div class="field">
-          <label>买家偏好 θ（逗号分隔）</label>
+          <label>Buyer preference θ (comma-separated)</label>
           <input id="theta" value="25,35,45,15,50" />
         </div>
         <div class="field">
-          <label>容量上限 C (Mbps)</label>
+          <label>Capacity limit C (Mbps)</label>
           <input id="capacity" type="number" value="100" />
         </div>
         <div class="field">
-          <label>边际成本 c</label>
+          <label>Marginal cost c</label>
           <input id="cost" type="number" step="0.1" value="2.0" />
         </div>
       </div>
       <div class="grid-3" style="margin-top: 10px;">
-        <div class="btn-wrap"><button id="runBtn">运行仿真并更新图表</button></div>
-        <div class="kpi"><div class="label">均衡价格 p*</div><div class="value" id="kpiPrice">-</div></div>
-        <div class="kpi"><div class="label">供应者效用</div><div class="value" id="kpiUtility">-</div></div>
+  <div class="btn-wrap"><button id="runBtn">Run simulation & refresh</button></div>
+  <div class="kpi"><div class="label">Equilibrium price p*</div><div class="value" id="kpiPrice">-</div></div>
+  <div class="kpi"><div class="label">Supplier utility</div><div class="value" id="kpiUtility">-</div></div>
       </div>
 
       <div class="kpi-grid">
-        <div class="kpi"><div class="label">Stackelberg Goodput</div><div class="value ok" id="kpiGoodStack">-</div></div>
-        <div class="kpi"><div class="label">Greedy Goodput</div><div class="value" id="kpiGoodGreedy">-</div></div>
-        <div class="kpi"><div class="label">Stackelberg 丢包率</div><div class="value ok" id="kpiLossStack">-</div></div>
-        <div class="kpi"><div class="label">Greedy 丢包率</div><div class="value bad" id="kpiLossGreedy">-</div></div>
+  <div class="kpi"><div class="label">Stackelberg Goodput</div><div class="value ok" id="kpiGoodStack">-</div></div>
+  <div class="kpi"><div class="label">Greedy Goodput</div><div class="value" id="kpiGoodGreedy">-</div></div>
+  <div class="kpi"><div class="label">Stackelberg Loss Rate</div><div class="value ok" id="kpiLossStack">-</div></div>
+  <div class="kpi"><div class="label">Greedy Loss Rate</div><div class="value bad" id="kpiLossGreedy">-</div></div>
       </div>
 
       <div class="card" style="margin-top: 12px;">
-        <h3 class="chart-title">拖动调整学生偏好 θ（实时刷新）</h3>
+  <h3 class="chart-title">Adjust θ with sliders (real-time)</h3>
         <div id="thetaSliders" class="slider-grid"></div>
       </div>
     </section>
 
     <section class="card">
       <div class="tabs">
-        <button class="tab active" data-tab="student">学生视角</button>
-        <button class="tab" data-tab="admin">管理员视角</button>
+  <button class="tab active" data-tab="student">Student View</button>
+  <button class="tab" data-tab="admin">Admin View</button>
       </div>
 
       <div id="studentView">
         <div class="grid-2">
           <div class="card chart-card">
-            <h3 class="chart-title">学生可得带宽对比（柱状图）</h3>
+            <h3 class="chart-title">Bandwidth per student (bar)</h3>
             <div class="chart-wrap"><canvas id="allocationBarChart"></canvas></div>
           </div>
           <div class="card chart-card">
-            <h3 class="chart-title">个人收益感知（雷达图）</h3>
+            <h3 class="chart-title">Per-student experience (radar)</h3>
             <div class="chart-wrap"><canvas id="studentRadarChart"></canvas></div>
           </div>
         </div>
         <div class="card">
-          <h3 class="chart-title">分配明细</h3>
+          <h3 class="chart-title">Allocation table</h3>
           <table id="buyerTable"></table>
         </div>
       </div>
@@ -285,20 +285,20 @@
       <div id="adminView" style="display:none;">
         <div class="grid-2">
           <div class="card chart-card">
-            <h3 class="chart-title">系统吞吐与丢包对比（组合图）</h3>
+            <h3 class="chart-title">Goodput vs. loss (combo)</h3>
             <div class="chart-wrap"><canvas id="systemMixChart"></canvas></div>
           </div>
           <div class="card chart-card">
-            <h3 class="chart-title">资源效率占比（环图）</h3>
+            <h3 class="chart-title">Resource efficiency (donut)</h3>
             <div class="chart-wrap"><canvas id="efficiencyDonutChart"></canvas></div>
           </div>
         </div>
         <div class="card chart-card">
-          <h3 class="chart-title">总分配量与容量约束（折线图）</h3>
+          <h3 class="chart-title">Total allocation vs. capacity (line)</h3>
           <div class="chart-wrap"><canvas id="capacityLineChart"></canvas></div>
         </div>
       </div>
-      <p class="footnote">注：Greedy 场景作为对照组，用于展示无定价约束下过载风险。</p>
+  <p class="footnote">Note: Greedy is the baseline to show overload risk without pricing.</p>
     </section>
   </div>
 
@@ -335,11 +335,11 @@ function renderThetaSliders() {
   container.innerHTML = thetaState.map((theta, index) => `
     <div class="slider-item ${lockState[index] ? 'locked' : ''}" data-index="${index}">
       <div class="slider-top">
-        <span>学生${index + 1}</span>
-        <button class="lock-btn ${lockState[index] ? 'locked' : ''}" data-action="lock">${lockState[index] ? '已锁定' : '锁定'}</button>
+        <span>Student ${index + 1}</span>
+        <button class="lock-btn ${lockState[index] ? 'locked' : ''}" data-action="lock">${lockState[index] ? 'Locked' : 'Lock'}</button>
       </div>
       <label>
-        <span>θ 值</span>
+        <span>θ value</span>
         <input class="slider-value" type="number" min="1" max="120" step="0.1" value="${theta}" />
       </label>
       <input type="range" min="1" max="120" step="0.1" value="${theta}" />
@@ -372,10 +372,10 @@ function setKpis(data) {
 }
 
 function renderTable(data) {
-  const header = '<tr><th>学生ID</th><th>θ偏好</th><th>Stackelberg 分配(Mbps)</th><th>Greedy 分配(Mbps)</th></tr>';
+  const header = '<tr><th>Student</th><th>θ</th><th>Stackelberg (Mbps)</th><th>Greedy (Mbps)</th></tr>';
   const rows = data.buyers.map(b => `
     <tr>
-      <td>学生${b.buyer_id}</td>
+      <td>Student ${b.buyer_id}</td>
       <td>${b.theta}</td>
       <td>${b.allocation_stackelberg}</td>
       <td>${b.allocation_greedy}</td>
@@ -399,7 +399,7 @@ window.addEventListener('resize', () => {
 });
 
 function renderCharts(data, capacity) {
-  const labels = data.buyers.map(b => `学生${b.buyer_id}`);
+  const labels = data.buyers.map(b => `Student ${b.buyer_id}`);
   const stack = data.buyers.map(b => b.allocation_stackelberg);
   const greedy = data.buyers.map(b => b.allocation_greedy);
 
@@ -422,8 +422,8 @@ function renderCharts(data, capacity) {
     data: {
       labels,
       datasets: [
-        { label: 'Stackelberg 体验', data: stack, borderColor: '#22d3ee', backgroundColor: 'rgba(34, 211, 238, 0.22)' },
-        { label: 'Greedy 体验', data: greedy, borderColor: '#f97316', backgroundColor: 'rgba(249, 115, 22, 0.16)' }
+  { label: 'Stackelberg experience', data: stack, borderColor: '#22d3ee', backgroundColor: 'rgba(34, 211, 238, 0.22)' },
+  { label: 'Greedy experience', data: greedy, borderColor: '#f97316', backgroundColor: 'rgba(249, 115, 22, 0.16)' }
       ]
     },
     options: {
@@ -444,18 +444,18 @@ function renderCharts(data, capacity) {
   destroyIfExists(systemMixChart);
   systemMixChart = new Chart(document.getElementById('systemMixChart'), {
     data: {
-      labels: ['Stackelberg', 'Greedy'],
+  labels: ['Stackelberg', 'Greedy'],
       datasets: [
         {
           type: 'bar',
-          label: 'Goodput(Mbps)',
+          label: 'Goodput (Mbps)',
           data: [data.goodput_stackelberg, data.goodput_greedy],
           backgroundColor: ['rgba(52, 211, 153, 0.8)', 'rgba(148, 163, 184, 0.7)'],
           yAxisID: 'y'
         },
         {
           type: 'line',
-          label: 'Loss Rate(%)',
+          label: 'Loss Rate (%)',
           data: [data.loss_rate_stackelberg * 100, data.loss_rate_greedy * 100],
           borderColor: '#f87171',
           backgroundColor: '#f87171',
@@ -481,7 +481,7 @@ function renderCharts(data, capacity) {
   efficiencyDonutChart = new Chart(document.getElementById('efficiencyDonutChart'), {
     type: 'doughnut',
     data: {
-      labels: ['Stackelberg 有效吞吐', 'Greedy 有效吞吐', 'Greedy 过载损失'],
+  labels: ['Stackelberg goodput', 'Greedy goodput', 'Greedy overload loss'],
       datasets: [{
         data: [data.goodput_stackelberg, data.goodput_greedy, greedyWaste],
         backgroundColor: ['#34d399', '#60a5fa', '#f87171']
@@ -498,7 +498,7 @@ function renderCharts(data, capacity) {
   capacityLineChart = new Chart(document.getElementById('capacityLineChart'), {
     type: 'line',
     data: {
-      labels: ['容量上限', 'Stackelberg总分配', 'Greedy总分配'],
+  labels: ['Capacity', 'Stackelberg total', 'Greedy total'],
       datasets: [{
         label: 'Mbps',
         data: [capacity, data.total_allocation_stackelberg, data.total_allocation_greedy],
@@ -523,13 +523,13 @@ async function runSimulation(fromSlider = false) {
   const cost_c = Number(document.getElementById('cost').value);
 
   if (!buyers_theta.length || !Number.isFinite(capacity_mbps) || !Number.isFinite(cost_c) || capacity_mbps <= 0 || cost_c <= 0) {
-    alert('参数不合法：请检查 θ、容量 C、成本 c。');
+  alert('Invalid parameters: check θ, capacity C, and cost c.');
     return;
   }
 
   const btn = document.getElementById('runBtn');
   btn.disabled = true;
-  btn.textContent = '仿真中...';
+  btn.textContent = 'Simulating...';
 
   try {
     const res = await fetch(API, {
@@ -537,17 +537,17 @@ async function runSimulation(fromSlider = false) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ buyers_theta, capacity_mbps, cost_c })
     });
-    if (!res.ok) throw new Error('后端接口请求失败');
+  if (!res.ok) throw new Error('Backend request failed');
 
     const data = await res.json();
     setKpis(data);
     renderTable(data);
     renderCharts(data, capacity_mbps);
   } catch (err) {
-    alert(`仿真失败：${err.message}`);
+  alert(`Simulation failed: ${err.message}`);
   } finally {
     btn.disabled = false;
-    btn.textContent = '运行仿真并更新图表';
+  btn.textContent = 'Run simulation & refresh';
   }
 }
 
